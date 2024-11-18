@@ -1,26 +1,45 @@
 import { Injectable } from '@nestjs/common';
+import { v4 as uuid } from 'uuid'; // For generating unique IDs
 import { CreateTaskDto } from './dto/create-task.dto';
-import { UpdateTaskDto } from './dto/update-task.dto';
+import { Task } from './entities/task.entity';
 
 @Injectable()
 export class TaskService {
-  create(createTaskDto: CreateTaskDto) {
-    return 'This action adds a new task';
+  private tasks: Task[] = [];
+
+  findAll(): Task[] {
+    return this.tasks;
   }
 
-  findAll() {
-    return `This action returns all task`;
+  findOne(id: string): Task | undefined {
+    return this.tasks.find((task) => task.id === id);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} task`;
+  create(createTaskDto: CreateTaskDto): Task {
+    const newTask: Task = {
+      id: uuid(),
+      title: createTaskDto.title,
+      description: createTaskDto.description,
+      status: createTaskDto.status || 'pending',
+    };
+    this.tasks.push(newTask);
+    return newTask;
   }
 
-  update(id: number, updateTaskDto: UpdateTaskDto) {
-    return `This action updates a #${id} task`;
+  update(id: string, updateTaskDto: Partial<CreateTaskDto>): Task | undefined {
+    const task = this.findOne(id);
+    if (task) {
+      Object.assign(task, updateTaskDto);
+    }
+    return task;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} task`;
+  remove(id: string): boolean {
+    const index = this.tasks.findIndex((task) => task.id === id);
+    if (index !== -1) {
+      this.tasks.splice(index, 1);
+      return true;
+    }
+    return false;
   }
 }
