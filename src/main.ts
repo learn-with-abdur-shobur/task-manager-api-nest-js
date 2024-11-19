@@ -9,6 +9,14 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
   app.setGlobalPrefix('api/v1');
 
+  // Enable CORS with specific options
+  app.enableCors({
+    origin: true, // Replace with the frontend URL
+    methods: 'GET,POST,PUT,DELETE', // Allowed HTTP methods
+    credentials: true, // If you need to send cookies or Authorization headers
+    allowedHeaders: 'Content-Type,Authorization', // Allowed headers
+  });
+
   const config = new DocumentBuilder()
     .setTitle('Test API')
     .setDescription('The Test API description')

@@ -2,12 +2,14 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { User } from 'src/users/entities/user.entity';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class AuthService {
-  private users: User[] = []; // Replace with a database in production
-
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly usersService: UsersService,
+  ) {}
 
   async register(username: string, password: string): Promise<User> {
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -16,7 +18,8 @@ export class AuthService {
       username,
       password: hashedPassword,
     };
-    this.users.push(newUser);
+    this.usersService.create(username, hashedPassword);
+    console.log(this.usersService.findAll());
     return newUser;
   }
 
@@ -24,13 +27,27 @@ export class AuthService {
     username: string,
     password: string,
   ): Promise<{ accessToken: string }> {
-    const user = this.users.find((u) => u.username === username);
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-      throw new UnauthorizedException('Invalid credentials');
+    // Ensure `findByUsername` is awaited
+    const user = await this.usersService.findByUsername(username);
+
+    // Check if the user exists
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials: user not found');
     }
 
+    // Validate the password
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException(
+        'Invalid credentials: incorrect password',
+      );
+    }
+
+    // Create the JWT payload
     const payload = { username: user.username, sub: user.id };
     const accessToken = this.jwtService.sign(payload);
+
+    // Return the access token
     return { accessToken };
   }
 }
