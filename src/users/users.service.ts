@@ -52,4 +52,21 @@ export class UsersService {
     this.users = this.users.filter((user) => user.id !== id);
     return user;
   }
+
+  async updateUser(id: string, data: Partial<User>): Promise<User> {
+    // Retrieve the user by ID
+    const user = this.findOne(id);
+
+    if (!user) {
+      throw new Error(`User with ID ${id} not found`);
+    }
+
+    // Update only the username if provided
+    if (data.username) {
+      user.username = data.username;
+    }
+
+    // Return the updated user
+    return user;
+  }
 }

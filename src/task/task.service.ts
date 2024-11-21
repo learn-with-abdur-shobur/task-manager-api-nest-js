@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { v4 as uuid } from 'uuid'; // For generating unique IDs
 import { CreateTaskDto } from './dto/create-task.dto';
-import { Task } from './entities/task.entity';
+import { Task, TaskStatus } from './entities/task.entity';
 
 @Injectable()
 export class TaskService {
@@ -15,12 +15,13 @@ export class TaskService {
     return this.tasks.find((task) => task.id === id);
   }
 
-  create(createTaskDto: CreateTaskDto): Task {
+  create(createTaskDto: CreateTaskDto, userId: string): Task {
     const newTask: Task = {
       id: uuid(),
       title: createTaskDto.title,
       description: createTaskDto.description,
       status: createTaskDto.status || 'pending',
+      userId: userId,
     };
     this.tasks.push(newTask);
     return newTask;
@@ -34,6 +35,13 @@ export class TaskService {
     return task;
   }
 
+  updateStatus(id: string, status: TaskStatus): Task | undefined {
+    const task = this.findOne(id);
+    if (task) {
+      task.status = status;
+    }
+    return task;
+  }
   remove(id: string): boolean {
     const index = this.tasks.findIndex((task) => task.id === id);
     if (index !== -1) {

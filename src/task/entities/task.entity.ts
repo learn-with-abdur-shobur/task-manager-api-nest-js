@@ -2,5 +2,8 @@ export interface Task {
   id: string;
   title: string;
   description: string;
-  status: 'pending' | 'in-progress' | 'done';
+  status: TaskStatus;
+  userId: string;
 }
+
+export type TaskStatus = 'pending' | 'in-progress' | 'done';

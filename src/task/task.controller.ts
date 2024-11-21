@@ -3,12 +3,13 @@ import {
   Controller,
   Delete,
   Get,
+  Header,
   Param,
-  Patch,
   Post,
+  Put,
 } from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task.dto';
-import { Task } from './entities/task.entity';
+import { Task, TaskStatus } from './entities/task.entity';
 import { TaskService } from './task.service';
 
 @Controller('tasks')
@@ -26,11 +27,15 @@ export class TaskController {
   }
 
   @Post()
-  create(@Body() createTaskDto: CreateTaskDto): Task {
+  create(
+    @Body() createTaskDto: CreateTaskDto,
+    @Header('Authorization', 'Bearer') authHeader: string,
+  ): Task {
+    console.log({ authHeader });
     return this.taskService.create(createTaskDto);
   }
 
-  @Patch(':id')
+  @Put(':id')
   update(
     @Param('id') id: string,
     @Body() updateTaskDto: Partial<CreateTaskDto>,
@@ -41,5 +46,14 @@ export class TaskController {
   @Delete(':id')
   remove(@Param('id') id: string): boolean {
     return this.taskService.remove(id);
+  }
+
+  @Post('/status/:id')
+  updateStatus(
+    @Param('id') id: string,
+    @Body() status: { status: TaskStatus },
+  ): Task | undefined {
+    console.log(status);
+    return this.taskService.updateStatus(id, status.status);
   }
 }
