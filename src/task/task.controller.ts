@@ -3,7 +3,6 @@ import {
   Controller,
   Delete,
   Get,
-  Header,
   Param,
   Post,
   Put,
@@ -27,11 +26,7 @@ export class TaskController {
   }
 
   @Post()
-  create(
-    @Body() createTaskDto: CreateTaskDto,
-    @Header('Authorization', 'Bearer') authHeader: string,
-  ): Task {
-    console.log({ authHeader });
+  create(@Body() createTaskDto: CreateTaskDto): Task {
     return this.taskService.create(createTaskDto);
   }
 

@@ -15,13 +15,13 @@ export class TaskService {
     return this.tasks.find((task) => task.id === id);
   }
 
-  create(createTaskDto: CreateTaskDto, userId: string): Task {
+  create(createTaskDto: CreateTaskDto): Task {
     const newTask: Task = {
       id: uuid(),
       title: createTaskDto.title,
       description: createTaskDto.description,
       status: createTaskDto.status || 'pending',
-      userId: userId,
+      userId: '',
     };
     this.tasks.push(newTask);
     return newTask;
